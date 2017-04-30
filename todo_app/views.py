@@ -1,19 +1,41 @@
-from django.shortcuts import render
-from django.http import HttpResponse
+from django.shortcuts import render, get_object_or_404
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+from django.views import generic
 
 from .models import Project
 from .models import Todo
 
 
-def index(request):
-    return HttpResponse("Hello, world. You're at the todo app index.")
+class IndexView(generic.ListView):
+    template_name = 'todo_app/index.html'
+    context_object_name = 'projects_list'
+
+    def get_queryset(self):
+        return Project.objects.all()
 
 
-def project(request, project_id):
-    p = Project.objects.get(pk=project_id)
-    return HttpResponse(p.name)
+class ProjectView(generic.DetailView):
+    model = Project
+    template_name = 'todo_app/project.html'
 
 
-def todo_detail(request, todo_id):
-    return HttpResponse("You're looking at todo %s" % todo_id)
+class TodoView(generic.DetailView):
+    model = Todo
+    template_name = 'todo_app/todo.html'
 
+
+def create_todo(request, project_id):
+    project = get_object_or_404(Project, pk=project_id)
+    try:
+        text = request.POST['text']
+        priority = request.POST['priority']
+    except (KeyError, Project.DoesNotExist):
+        return render(request, 'todo_app/project.html', {
+            'project': project,
+            'error_message': 'text is missing'
+        })
+    else:
+        todo = project.todo_set.create(text=text, priority=priority, done=False)
+        todo.save()
+    return HttpResponseRedirect(reverse('todo_app:todo', args=(todo.id,)))

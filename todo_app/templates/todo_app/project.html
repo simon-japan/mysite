@@ -1,0 +1,18 @@
+<h1>{{ project.name }}</h1>
+
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+<form action="{% url 'todo_app:create_todo' project.id %}" method="post">
+    {% csrf_token %}
+    <input type="text" name="text"/>
+    <label for="text">Text</label><br />
+    <input type="number" name="priority">
+    <label for="priority">Priority</label><br />
+    <input type="submit" value="Create"/>
+</form>
+
+<ul>
+{% for todo in project.todo_set.all %}
+    <li><a href="{% url 'todo_app:todo' todo.id %}">{{ todo.text }}</a></li>
+{% endfor %}
+</ul>

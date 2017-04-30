@@ -2,9 +2,18 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Projects</title>
 </head>
 <body>
-
+<h1>Projects</h1>
+{% if projects_list %}
+    <ul>
+    {% for project in projects_list %}
+        <li><a href="{% url 'todo_app:project' project.id %}">{{ project.name }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No projects have been created yet.</p>
+{% endif %}
 </body>
 </html>
